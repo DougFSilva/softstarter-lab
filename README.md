@@ -4,6 +4,9 @@ Simulador didático de acionamentos industriais, atualizado em 06/11/2026 a part
 
 ## Novidades
 
+- Instruções curtas nos potenciômetros, com destaque em cada ajuste ativo.
+- Botões de confirmação destacados e botão Concluir/Tentar novamente ao término do ensaio, ambos fechando o modal.
+
 - Etapa MOTOR CURRENT na ordem: enunciado, ajuda, placa e painel, com instrução e destaque no potenciômetro.
 - Alternativas embaralhadas ao abrir ou refazer questões, preservando a correção.
 
