@@ -51,6 +51,30 @@ function simulateMotor(s,p){
  const good=!incomplete&&!fault&&moved&&!impact&&!thermalCaution;
  return {rampReached,maxDutyDuration,interruptedAt:fault?samples.at(-1).t:null,endRampSpeed,incomplete,residualTorque,peakCurrent,peakRatio,peakBand,highCurrentDuration,samples,firstMove,atRamp,energy,fault,good,moved,impact,thermalCaution,maxAcceleration};
 }
-function simulateStop(s,p){if(!Number.isFinite(p.decel)||p.decel<0||p.decel>20)throw new RangeError('Desaceleração fora da faixa permitida');let w=.99;const samples=[],dt=.05;
- for(let t=0;t<=p.decel+10;t+=dt){const u=p.decel>0&&t<p.decel?Math.max(0,1-t/p.decel):0;const torque=u*u*(2.1-1.3*w),load=s.kind==='conveyor'?(w<.015?s.staticFriction:s.friction+(.8-s.friction)*w):s.friction+(0.8-s.friction)*w*w;w=Math.max(0,Math.min(1,w+(torque-load)/s.inertia*dt));samples.push({t,u,current:u*(1+5*(1-w)**2)*s.amps,w});if(w===0&&t>p.decel)break;}return {samples};}
+// Shared mechanical model for an OFF baseline and a controlled voltage ramp.
+function stopCurve(s,decel){
+ const dt=.05,samples=[];let w=.99;
+ for(let tick=0;tick<=Math.round((decel+30)/dt);tick++){
+  const t=tick*dt,u=decel>0?Math.max(0,1-t/decel):0;
+  samples.push({t,u,current:u*(1+5*(1-w)**2)*s.amps,w});
+  if(w===0&&t>=decel)break;
+  const torque=u*u*(2.1-1.3*w),load=s.kind==='conveyor'?(w<.015?s.staticFriction:s.friction+(.8-s.friction)*w):s.friction+(.8-s.friction)*w*w;
+  w=Math.max(0,Math.min(1,w+(torque-load)/s.inertia*dt));
+ }
+ const crossing=level=>samples.find(d=>d.w<=level)?.t??null;
+ const t80=crossing(.8),t20=crossing(.2),nearStop=crossing(.02);
+ const maxDeceleration=Math.max(0,...samples.slice(1).map((d,i)=>(samples[i].w-d.w)/dt));
+ return {samples,t80,t20,nearStop,transitionTime:t80!==null&&t20!==null?t20-t80:null,maxDeceleration,peakCurrent:Math.max(...samples.map(d=>d.current)),speedAtRamp:samples.find(d=>d.t>=decel)?.w??samples.at(-1).w};
+}
+function simulateStop(s,p){
+ if(!Number.isFinite(p.decel)||p.decel<0||p.decel>20)throw new RangeError('Desaceleração fora da faixa permitida');
+ const curve=stopCurve(s,p.decel),baseline=stopCurve(s,0);
+ const reduction=baseline.maxDeceleration>0?1-curve.maxDeceleration/baseline.maxDeceleration:0;
+ // Indicators of this teaching model, never WEG trip thresholds or hydraulic criteria.
+ const concentrated=p.decel>0&&reduction<.35;
+ const poweredAfterNearStop=p.decel>0&&curve.nearStop!==null?Math.max(0,p.decel-curve.nearStop):0;
+ const shorter=p.decel>1?stopCurve(s,p.decel-1):null;
+ const littleAddedBenefit=!!shorter&&poweredAfterNearStop>2&&shorter.maxDeceleration<=curve.maxDeceleration*1.1;
+ return {...curve,decel:p.decel,baseline,reduction,concentrated,poweredAfterNearStop,littleAddedBenefit,good:p.decel>0,fault:null};
+}
 if(typeof module!=='undefined')module.exports={simulateMotor,simulateStop};

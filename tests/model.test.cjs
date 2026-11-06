@@ -30,10 +30,10 @@ assert(!c.sim(belt,{initial:40,ramp:5}).moved);assert(c.sim(belt,{initial:60,ram
 assert(c.sim(pump,{initial:80,ramp:7}).impact);
 for(const p of [{initial:29,ramp:1},{initial:81,ramp:1},{initial:30,ramp:0},{initial:30,ramp:21},{initial:30,ramp:NaN},{initial:30,ramp:1,current:101}])assert.throws(()=>c.sim(pump,p));
 // UI defaults and displayed metric, without requiring a DOM.
-vm.runInContext(fs.readFileSync('dist/app.js','utf8').replace(/home\(\);\s*$/,'')+'\nactive=SCENARIOS[0];this.params=run().params;this.panel=frontPanel(active,false,true);',c);
+vm.runInContext(fs.readFileSync('app.js','utf8').replace(/home\(\);\s*$/,'')+'\nactive=SCENARIOS[0];this.params=run().params;this.panel=frontPanel(active,false,true);',c);
 assert.deepEqual(JSON.parse(JSON.stringify(c.params)),{initial:30,ramp:1,current:30,decel:0});
 assert(c.panel.includes('id="current"'));assert(c.panel.includes('id="simulate" hidden'));
-const app=fs.readFileSync('dist/app.js','utf8');assert(app.includes('Velocidade ao fim da rampa'));assert(!app.includes('res.speed90'));assert(!app.includes('Índice didático ∫'));
+const app=fs.readFileSync('app.js','utf8');assert(app.includes('Velocidade ao fim da rampa'));assert(!app.includes('res.speed90'));assert(!app.includes('Índice didático ∫'));
 console.log('Bounds, transitions, current interpretation, load response and UI defaults passed.');
 
 assert.equal(belt.amps,belt.ssw);assert.equal(belt.amps,16);

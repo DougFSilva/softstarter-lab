@@ -201,7 +201,7 @@ const SCENARIOS=[
         "type": "stop",
         "title": "Avaliar a parada da bomba",
         "context": "A equipe relata impacto hidráulico na parada direta. Compare a retirada imediata da alimentação com uma rampa de desaceleração.",
-        "prompt": "Execute uma parada com rampa habilitada e depois escolha como comandá-la.",
+        "prompt": "Simule primeiro com DECEL TIME em OFF. Depois habilite uma rampa, simule novamente, compare as curvas e escolha como comandar a parada.",
         "ref": "Manual • §12.3 e §13, pp. 71–72"
       },
       {
