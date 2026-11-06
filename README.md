@@ -4,6 +4,9 @@ Simulador didático de acionamentos industriais, atualizado em 06/11/2026 a part
 
 ## Novidades
 
+- Etapa MOTOR CURRENT na ordem: enunciado, ajuda, placa e painel, com instrução e destaque no potenciômetro.
+- Alternativas embaralhadas ao abrir ou refazer questões, preservando a correção.
+
 - Gráfico e resultado dos ensaios em modal, com opção de reabrir o último ensaio.
 - Orientações, referências e tabela GED-13 acessíveis por botões de consulta.
 - Mensagem do resultado em vermelho quando não passa e em verde quando passa; detalhes em cor neutra.
@@ -25,7 +28,7 @@ Para baixar o projeto atualizado, use Code → Download ZIP. O botão de downloa
 Requer Node.js, sem dependências adicionais:
 
 ```sh
-node --test tests/model.test.cjs tests/retry.test.cjs tests/stop.test.cjs
+node --test tests/model.test.cjs tests/retry.test.cjs tests/stop.test.cjs tests/options.test.cjs
 ```
 
 Os testes verificam os cenários e limites da partida, a reabertura de etapas e a sequência de validação da parada.
